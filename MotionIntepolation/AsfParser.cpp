@@ -14,21 +14,103 @@ using namespace dart::dynamics;
 using namespace dart::simulation;
 
 
-
-ASFBoneData::ASFBoneData()
+/* Constructor and Destructor */
+ASFData::ASFData()
 {
 
 }
 
 
-ASFBoneData::~ASFBoneData()
+ASFData::~ASFData()
 {}
 
 
-void ASFBoneData::setRoot()
+/* getter for a specific Bone, which are supposed to be accessed only by
+ * instance itself
+ */
+bool ASFData::getBone(Bone * target, std::string boneName)
+{
+  for (int i=0; i<mBones.size(); ++i)
+  {
+    if (mBones.at(i).name == boneName)
+    {
+      *target = mBones.at(i);
+      return true;
+    }
+  }
+  return false;
+}
+
+
+// getter for segment
+bool ASFData::getSegmentDirection(std::string segmentName,
+                           Eigen::Vector3d * direction)
+{
+  for (int i=0; i<mBones.size(); ++i)
+  {
+    if (mBones.at(i).name == segmentName)
+    {
+      *direction = mBones.at(i).direction;
+      return true;
+    }
+  }
+  return false;
+
+}
+
+
+bool ASFData::getSegmentLength(std::string segmentName, double * length)
+{
+  for (int i=0; i<mBones.size(); ++i)
+  {
+    if (mBones.at(i).name == segmentName)
+    {
+      *length = mBones.at(i).length;
+      return true;
+    }
+  }
+  return false;
+
+}
+
+
+bool ASFData::getSegmentDegreeOfFreedoms(std::string segmentName,
+                                         Eigen::Vector3d * segmentDofs)
+{
+  for (int i=0; i<mBones.size(); ++i)
+  {
+    if (mBones.at(i).name == segmentName)
+    {
+      *segmentDofs = mBones.at(i).dofs;
+      return true;
+    }
+  }
+  return false;
+
+}
+
+
+bool ASFData::getSegmentLimits(std::string segmentName,
+                               std::vector<std::pair<double, double>>* limits)
+{
+  for (int i=0; i<mBones.size(); ++i)
+  {
+    if (mBones.at(i).name == segmentName)
+    {
+      *limits = mBones.at(i).limits;
+      return true;
+    }
+  }
+  return false;
+
+}
+
+
+/* subroutines for reading the data from ASF */
+bool ASFData::setRoot()
 {
   std::string line, token, dof_val;
-  while (std::getline(retriever, line))
+  while (std::getline(mRetriever, line))
   {
     std::istringstream stream(line);
     stream >> token;
@@ -65,10 +147,11 @@ void ASFBoneData::setRoot()
   }
 
   std::cout << "finish setting root" << std::endl;
+  return true;
 }
 
 
-void ASFBoneData::readBones()
+bool ASFData::setBones()
 {
   std::string line, token, dof_val;
   bool is_seg_begin = false;
@@ -84,7 +167,7 @@ void ASFBoneData::readBones()
   //std::regex  limit_pattern("-?[0-9]+(\\.[0-9]+)?$");
   std::pair<double, double> limits; // limit pair temp
 
-  while (std::getline(retriever, line))
+  while (std::getline(mRetriever, line))
   {
     stream.clear();
     stream.str(line);
@@ -99,7 +182,7 @@ void ASFBoneData::readBones()
     if (token == "begin")
     {
       is_seg_begin = true;
-      newBone.dof = DOF_NONE; // make sure the segment starts with 0 DOF
+      newBone.dof_flag = DOF_NONE; // make sure the segment starts with 0 DOF
       newBone.direction = Eigen::Vector3d::Zero(); // start new bone's direction
       newBone.limits.resize(0); // start new bone's limits pair
     }
@@ -109,7 +192,7 @@ void ASFBoneData::readBones()
     {
       // input new string to stream
       stream.clear();
-      std::getline(retriever, line);
+      std::getline(mRetriever, line);
       stream.str(line);
       
       stream >> token;
@@ -122,7 +205,7 @@ void ASFBoneData::readBones()
         std::cout << "segment ended" << std::endl;
         is_seg_begin = false;
         // push the new bone to bone list
-        bones.push_back(newBone);
+        mBones.push_back(newBone);
         // print current data
         break;
       }
@@ -170,13 +253,47 @@ void ASFBoneData::readBones()
         while(stream >> dof_flag)
         {
           if (dof_flag == "rx")
-            newBone.dof += DOF_RX;
+            newBone.dof_flag += DOF_RX;
           if (dof_flag == "ry")
-            newBone.dof += DOF_RY;
+            newBone.dof_flag += DOF_RY;
           if (dof_flag == "rz")
-            newBone.dof += DOF_RZ;
+            newBone.dof_flag += DOF_RZ;
         }
-      }
+
+        if (newBone.dof_flag == DOF_NONE)
+        {
+          newBone.dofs = Eigen::Vector3d(0, 0, 0);
+        }
+        else if (newBone.dof_flag == DOF_RX)
+        {
+          newBone.dofs = Eigen::Vector3d(1, 0, 0);
+        }
+        else if (newBone.dof_flag == DOF_RY)
+        {
+          newBone.dofs = Eigen::Vector3d(0, 1, 0);
+        }
+        else if (newBone.dof_flag == DOF_RZ)
+        {
+          newBone.dofs = Eigen::Vector3d(0, 0, 1);
+        }
+        else if (newBone.dof_flag == DOF_RX_RY)
+        {
+          newBone.dofs = Eigen::Vector3d(1, 1, 0);
+        }
+        else if (newBone.dof_flag == DOF_RX_RZ)
+        {
+          newBone.dofs = Eigen::Vector3d(1, 0, 1);
+        }
+        else if (newBone.dof_flag == DOF_RY_RZ)
+        {
+          newBone.dofs = Eigen::Vector3d(0, 1, 1);
+        }
+        else if (newBone.dof_flag == DOF_RX_RY_RZ)
+        {
+          newBone.dofs = Eigen::Vector3d(1, 1, 1);
+        }
+
+      } // end reading degree of freedom
 
 
       // read dof limitation
@@ -202,24 +319,26 @@ void ASFBoneData::readBones()
 
   std::cout << "finish reading Bones" << std::endl;
   std::cout << "Bones" << std::endl;
-  for (std::vector<Bone>::iterator it=bones.begin(); it!=bones.end(); ++it)
+  for (std::vector<Bone>::iterator it=mBones.begin(); it!=mBones.end(); ++it)
   {
     std::cout << "id = " << std::to_string((*it).id)
               << ", name = " << (*it).name
-              << ", dof = " << (*it).dof
+              << ", dof_flag = " << (*it).dof_flag
               << ", length = " << (*it).length;
     std::cout << ", direction = " << (*it).direction;
 
     std::cout << std::endl;
   }
+  return true;
 
 }
 
 
+// Subroutine for hierarchical generate skeleton
 BodyNodePtr createRoot(
-    const SkeletonPtr& skel,
+    SkeletonPtr skel,
     BodyNodePtr parent,
-    Root root)
+    Root * root)
 {
   // define the unit conversion
   double unit = (1.0/0.45)*2.54/100.0; // scale to inches to meter
@@ -240,8 +359,7 @@ BodyNodePtr createRoot(
   std::shared_ptr<EllipsoidShape> j_shape(
       new EllipsoidShape(sqrt(2)*Eigen::Vector3d(j_R, j_R, j_R)));
   j_shape->setColor(dart::Color::Blue());
-    bn->addVisualizationShape(j_shape);
-
+  bn->addVisualizationShape(j_shape);
 
 
   return bn; 
@@ -250,23 +368,26 @@ BodyNodePtr createRoot(
 
 
 BodyNodePtr createSegment(
-    const SkeletonPtr& skel,
+    SkeletonPtr skel,
     BodyNodePtr parent,
-    Bone& bone)
+    Bone * bone)
 {
   // define the unit conversion
   double unit = (1.0/0.45)*2.54/100.0; // scale to inches to meter
 
   BodyNodePtr bn;
 
+  std::cout << "bone name = " << bone->name << std::endl;
+
   BallJoint::Properties j_prop;
-  j_prop.mName = bone.name + "_joint";
-  j_prop.mT_ParentBodyToJoint.translation() = bone.length * unit * bone.direction;
+  j_prop.mName = bone->name + "_joint";
+  j_prop.mT_ParentBodyToJoint.translation() = bone->length * unit * bone->direction;
   BodyNode::Properties b_prop;
-  b_prop.mName = bone.name;
+  b_prop.mName = bone->name;
   bn = skel->createJointAndBodyNodePair<BallJoint>(
     parent, j_prop, b_prop).second;
 
+  std::cout << "bone name = " << bn->getName() << std::endl;
   // make joint shape
   const double& j_R = joint_radius;
   std::shared_ptr<EllipsoidShape> j_shape(
@@ -278,14 +399,14 @@ BodyNodePtr createSegment(
   // Create a CylinderShape to be used for both visualization and
   // collision checking
   std::shared_ptr<CylinderShape> b_shape(
-      new CylinderShape(j_R, bone.length * unit));
+      new CylinderShape(j_R, bone->length * unit));
   b_shape->setColor(dart::Color::Black());
 
   Joint* p_j = bn->getParentJoint();
   Eigen::Isometry3d tf = p_j->getTransformFromParentBodyNode();
   Eigen::Isometry3d localTransform = Eigen::Isometry3d::Identity();
 
-  // TODO: This could be substitute by computeRotation in 6.0
+  // TODO: This could be substitute by computeRotation in DART 6.0
   Eigen::Matrix3d rot_m;
   Eigen::Vector3d axis0 = tf.translation().normalized();
   Eigen::Vector3d axis1 = axis0.cross(Eigen::Vector3d::UnitX());
@@ -308,66 +429,69 @@ BodyNodePtr createSegment(
 }
 
 
-void ASFBoneData::generateSkeletonHierarchy(dart::dynamics::SkeletonPtr& skel)
+bool ASFData::generateSkeletonHierarchy(dart::dynamics::SkeletonPtr skel)
 {
 
-  // create root
-  BodyNodePtr parentBodyNode, childBodyNode;
-  parentBodyNode = createRoot(skel, nullptr, getRoot());
-
-  // attach bones
-
+  std::cout << "start generate skeleton" << std::endl;
   std::istringstream stream;
   std::string line, parentBoneName, childBoneName;
   Bone childBone;
-  while (std::getline(retriever, line))
+  BodyNodePtr parentBodyNodePtr, childBodyNodePtr;
+
+  // get the begin token, if not, the format is wrong
+  std::string token;
+  std::getline(mRetriever, line);
+  stream.clear();
+  stream.str(line);
+  stream >> token;
+  if (token != "begin")
+  {
+    std::cout << "Wrong ASF Format: lost begin token at hierarchy section"
+              << std::endl;
+    return false;
+  }
+
+  
+  // create root
+  parentBodyNodePtr = createRoot(skel, nullptr, &mRoot);
+
+  // attach bones
+  while (std::getline(mRetriever, line))
   {
     stream.clear();
     stream.str(line);
     stream >> parentBoneName;
-    parentBodyNode = skel->getBodyNode(parentBoneName);
+    if (parentBoneName == "end") break;
+
+    parentBodyNodePtr = skel->getBodyNode(parentBoneName);
     while(stream >> childBoneName)
     {
-      if (getBone(childBone, childBoneName))
-        childBodyNode = createSegment(skel, parentBodyNode, childBone);
+      if (getBone(&childBone, childBoneName))
+      {
+        childBodyNodePtr = createSegment(skel, parentBodyNodePtr, &childBone);
+      }
+
     }
   }
 
-
-  std::cout << "finish generating root" << std::endl;
+  std::cout << "finish generating structure" << std::endl;
+  return true;
 }
 
 
-bool ASFBoneData::getBone(Bone& target, std::string boneName)
-{
-  for (std::vector<Bone>::iterator it=bones.begin(); it!=bones.end(); ++it)
-  {
-    if ((*it).name == boneName)
-    {
-      target = *it;
-      return true;
-    }
-  }
-  return false;
-}
 
 
-Root ASFBoneData::getRoot()
-{
-  return root;
-}
 
-
-dart::dynamics::SkeletonPtr ASFBoneData::readSkeleton(char * fileName)
+bool ASFData::readSkeleton(char * fileName, dart::dynamics::SkeletonPtr skel)
 {
 
   // init retriever
-  retriever.open(fileName, std::ios::in);
-  assert(retriever);
+  mRetriever.open(fileName, std::ios::in);
+  assert(mRetriever);
 
   // skip macro
   std::string line, token, dof_val;
-  while (std::getline(retriever, line))
+  while (std::getline(mRetriever, line))
   {
     std::istringstream stream(line);
     stream >> token;
@@ -375,18 +499,17 @@ dart::dynamics::SkeletonPtr ASFBoneData::readSkeleton(char * fileName)
   }
 
 
-  // read root data
+  // set root data
   setRoot();
 
 
-  // add Bone data
-  readBones();
+  // set Bone data
+  setBones();
 
 
   // generate the whole skeleton with hierarchy structure
-  dart::dynamics::SkeletonPtr skel = dart::dynamics::Skeleton::create("human");
   generateSkeletonHierarchy(skel);
 
 
-  return skel;
+  return true;
 }
