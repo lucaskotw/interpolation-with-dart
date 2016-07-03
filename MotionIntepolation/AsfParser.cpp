@@ -75,14 +75,22 @@ bool ASFData::getSegmentLength(std::string segmentName, double * length)
 
 
 bool ASFData::getSegmentDegreeOfFreedoms(std::string segmentName,
-                                         Eigen::Vector3d * segmentDofs)
+                                         Eigen::VectorXd * segmentDofs)
 {
-  for (int i=0; i<mBones.size(); ++i)
+  if (segmentName == "root")
   {
-    if (mBones.at(i).name == segmentName)
+    *segmentDofs = Eigen::Vector6d::Ones();
+    return true;
+  }
+  else
+  {
+    for (int i=0; i<mBones.size(); ++i)
     {
-      *segmentDofs = mBones.at(i).dofs;
-      return true;
+      if (mBones.at(i).name == segmentName)
+      {
+        *segmentDofs = mBones.at(i).dofs;
+        return true;
+      }
     }
   }
   return false;
@@ -157,6 +165,7 @@ bool ASFData::setBones()
   bool is_seg_begin = false;
   Bone newBone;
   std::istringstream stream;
+  double axis_buff; // axis buffer
   std::string dof_flag; // dof flag
   double direction_buff; // direction buffer
   /*
@@ -247,6 +256,17 @@ bool ASFData::setBones()
       }
 
 
+      // read length
+      if (token == "axis")
+      {
+        for (int i=0; i<3; ++i) // suppose direction is 3D
+        {
+          stream >> axis_buff;
+          newBone.axes(i) = axis_buff;
+        }
+      }
+
+
       // read degree of freedom
       if (token == "dof")
       {
@@ -325,6 +345,7 @@ bool ASFData::setBones()
               << ", name = " << (*it).name
               << ", dof_flag = " << (*it).dof_flag
               << ", length = " << (*it).length;
+    std::cout << ", axes = " << (*it).axes;
     std::cout << ", direction = " << (*it).direction;
 
     std::cout << std::endl;
@@ -473,6 +494,10 @@ bool ASFData::generateSkeletonHierarchy(dart::dynamics::SkeletonPtr skel)
 
     }
   }
+
+  // adjust the segment reference (relate to its parent joint) based on axis
+  // data
+
 
   std::cout << "finish generating structure" << std::endl;
   return true;

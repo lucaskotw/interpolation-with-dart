@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cmath> // for atan2
 #include "AsfParser.h"
-#include "AmcMotion.h"
+//#include "AmcMotion.h"
 #include "LinearInterpolator.h"
 
 using namespace dart::dynamics;

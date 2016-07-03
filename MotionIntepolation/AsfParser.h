@@ -37,6 +37,7 @@ struct Bone
   Eigen::Vector3d direction;
   double length;
   int dof_flag;
+  Eigen::Vector3d axes;
   Eigen::Vector3d dofs;
   std::vector<std::pair<double, double>> limits;
 };
@@ -70,8 +71,10 @@ public:
                            Eigen::Vector3d * direction);
   bool getSegmentLength(std::string segmentName,
                         double * length);
+  bool getSegmentAxes(std::string segmentName,
+                      Eigen::Vector3d * segmentAxes);
   bool getSegmentDegreeOfFreedoms(std::string segmentName,
-                                  Eigen::Vector3d * segmentDofs);
+                                  Eigen::VectorXd * segmentDofs);
   bool getSegmentLimits(std::string segmentName,
                         std::vector<std::pair<double, double>>* limits);
 
