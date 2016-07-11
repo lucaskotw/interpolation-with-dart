@@ -20,6 +20,20 @@ ASFData::ASFData()
 
 }
 
+ASFData::ASFData(const ASFData & asfData) : mRoot(asfData.mRoot),
+                                            mBones(asfData.mBones)
+{
+}
+
+
+ASFData& ASFData::operator= (const ASFData & asfData)
+{
+  mRoot = asfData.mRoot;
+  mBones = asfData.mBones;
+  return *this;
+
+}
+
 
 ASFData::~ASFData()
 {}
@@ -73,6 +87,22 @@ bool ASFData::getSegmentLength(std::string segmentName, double * length)
 
 }
 
+bool ASFData::getSegmentAxes(std::string segmentName,
+                             Eigen::Vector3d * segmentAxes)
+{
+  for (int i=0; i<mBones.size(); ++i)
+  {
+    if (mBones.at(i).name == segmentName)
+    {
+      *segmentAxes = mBones.at(i).axes;
+      return true;
+    }
+  }
+  return false;
+
+}
+
+
 
 bool ASFData::getSegmentDegreeOfFreedoms(std::string segmentName,
                                          Eigen::VectorXd * segmentDofs)
@@ -111,6 +141,24 @@ bool ASFData::getSegmentLimits(std::string segmentName,
   }
   return false;
 
+}
+
+
+bool ASFData::getSegmentNames(std::vector<std::string> * segmentNameList)
+{
+  std::vector<std::string> list(0);
+  list.push_back("root");
+  for (std::size_t i=0; i<mBones.size(); ++i)
+  {
+    list.push_back(mBones.at(i).name);
+  }
+  if (list.size() > 0)
+  {
+    *segmentNameList = list;
+    return true;
+  }
+  else
+    return false;
 }
 
 
@@ -161,6 +209,7 @@ bool ASFData::setRoot()
 
 bool ASFData::setBones()
 {
+  std::cout << "current mBones size = " << mBones.size();
   std::string line, token, dof_val;
   bool is_seg_begin = false;
   Bone newBone;
@@ -192,6 +241,7 @@ bool ASFData::setBones()
     {
       is_seg_begin = true;
       newBone.dof_flag = DOF_NONE; // make sure the segment starts with 0 DOF
+      newBone.dofs = Eigen::Vector3d::Zero(); // start new bone's DOFS
       newBone.direction = Eigen::Vector3d::Zero(); // start new bone's direction
       newBone.limits.resize(0); // start new bone's limits pair
     }
@@ -312,6 +362,10 @@ bool ASFData::setBones()
         {
           newBone.dofs = Eigen::Vector3d(1, 1, 1);
         }
+        else
+        {
+          newBone.dofs = Eigen::Vector3d(0, 0, 0);
+        }
 
       } // end reading degree of freedom
 
@@ -398,18 +452,18 @@ BodyNodePtr createSegment(
 
   BodyNodePtr bn;
 
-  std::cout << "bone name = " << bone->name << std::endl;
 
   BallJoint::Properties j_prop;
   j_prop.mName = bone->name + "_joint";
   j_prop.mT_ParentBodyToJoint.translation() = bone->length * unit * bone->direction;
   BodyNode::Properties b_prop;
   b_prop.mName = bone->name;
-  bn = skel->createJointAndBodyNodePair<BallJoint>(
+  // body node and joint should be parent and child relationship
+  // e.g., lhipjoint_joint is the joint driven lfemur
+  bn = skel->createChildJointAndBodyNodePair<BallJoint>(
     parent, j_prop, b_prop).second;
 
-  std::cout << "bone name = " << bn->getName() << std::endl;
-  // make joint shape
+  // make child joint shape
   const double& j_R = joint_radius;
   std::shared_ptr<EllipsoidShape> j_shape(
       new EllipsoidShape(sqrt(2)*Eigen::Vector3d(j_R, j_R, j_R)));
@@ -444,6 +498,11 @@ BodyNodePtr createSegment(
   b_shape->setLocalTransform(localTransform);
   // Add it as a visualization and collision shape
   bn->getParentBodyNode()->addVisualizationShape(b_shape);
+
+  std::cout << "joint body node pair" << std::endl;
+  std::cout << 
+
+
 
 
   return bn; 
@@ -497,6 +556,28 @@ bool ASFData::generateSkeletonHierarchy(dart::dynamics::SkeletonPtr skel)
 
   // adjust the segment reference (relate to its parent joint) based on axis
   // data
+  JointPtr currentJointPtr;
+  JointPtr parentJointPtr;
+  BodyNodePtr currentBodyNodePtr;
+  std::string currentBodyNodeName;
+  Eigen::Vector3d rotationReference;
+  Eigen::Isometry3d transformMatrix;
+  double deg_to_rad = M_PI/180;
+  for (int i=0; i<mBones.size(); ++i)
+  {
+    currentBodyNodeName = mBones.at(i).name;
+    currentJointPtr = skel->getJoint(currentBodyNodeName+"_joint");
+    currentBodyNodePtr = skel->getBodyNode(currentBodyNodeName);
+    parentJointPtr = currentBodyNodePtr->getParentJoint();
+
+    if (parentJointPtr->getName() != "root")
+    {
+      rotationReference = mBones.at(i).axes * deg_to_rad;
+      //transformMatrix.linear() = rotationReference;
+      //parentJointPtr->setTransform(transformMatrix);
+      parentJointPtr->setPositions(rotationReference);
+    }
+  }
 
 
   std::cout << "finish generating structure" << std::endl;

@@ -23,8 +23,8 @@ const int DOF_RX_RY_RZ = 7;
 
 struct Root
 {
-  char * order;
-  char * axis;
+  //char * order;
+  //char * axis;
   std::vector<double> position;
   std::vector<double> orientation;
 };
@@ -62,8 +62,10 @@ private:
 
 
 public:
-  // constructor and destructor
+  // constructor, copy constructor and destructor
   ASFData();
+  ASFData(const ASFData & asfData);
+  ASFData& operator= (const ASFData & asfData);
   ~ASFData();
 
   // getter and setter
@@ -77,7 +79,7 @@ public:
                                   Eigen::VectorXd * segmentDofs);
   bool getSegmentLimits(std::string segmentName,
                         std::vector<std::pair<double, double>>* limits);
-
+  bool getSegmentNames(std::vector<std::string> * segmentNameList);
 
   // load data from reading the ASF file
   bool readSkeleton(char * fileName, dart::dynamics::SkeletonPtr skel);

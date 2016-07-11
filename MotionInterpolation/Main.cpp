@@ -103,7 +103,22 @@ int main(int argc, char ** argv)
 
   // Display the result
   MyWindow window(world);
-  //window.loadAndInterpolateMotionData(argv[2]);
+  window.loadAndInterpolateMotionData(argv[2], asf_data);
+
+  std::cout << "asf dofs" << std::endl;
+  std::vector<std::string> segmentNames;
+  Eigen::VectorXd segmentDofs;
+  if (asf_data->getSegmentNames(&segmentNames))
+  {
+    for (std::size_t i=0; i<segmentNames.size(); ++i)
+    {
+      if (asf_data->getSegmentDegreeOfFreedoms(segmentNames.at(i), &segmentDofs))
+      {
+        std::cout << segmentNames.at(i) << std::endl;
+        std::cout << segmentDofs << std::endl;
+      }
+    }
+  }
 
 
 

@@ -22,11 +22,13 @@ public:
 
 
   int loadAndInterpolateMotionData(char* motionFileName,
-                                   ASFData asfData);
+                                   ASFData * asfData);
+  bool transformSegmentAtSample(std::string segmentName, int timeStep);
   void timeStepping() override;
   void keyboard(unsigned char _key, int _x, int _y) override;
 
 private:
+  ASFData * mAsfData;
   AMCData* mInputMotion;
   AMCData* mOutputMotion;
   int mTimeStepCnt;

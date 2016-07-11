@@ -48,4 +48,4 @@ endif()
 include_directories(${DART_INCLUDE_DIRS})
 link_directories(${DART_LIBRARY_DIRS})
 
-add_subdirectory(MotionIntepolation)
+add_subdirectory(MotionInterpolation)
