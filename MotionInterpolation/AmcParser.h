@@ -1,12 +1,12 @@
-#ifndef DISPLAYMOTION_AMCPARSER_H_
-#define DISPLAYMOTION_AMCPARSER_H_
+#ifndef MOTIONINTERPOLATION_AMCPARSER_H_
+#define MOTIONINTERPOLATION_AMCPARSER_H_
 
 
 #include <vector>
 #include <utility>
 #include <fstream>
 #include <string>
-#include "dart/dart.h"
+#include <dart/dart.hpp>
 #include "AsfParser.h"
 
 // Motion Data Type Definition

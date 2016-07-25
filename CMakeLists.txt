@@ -35,7 +35,7 @@ else()
 endif()
 
 # Find DART
-find_package(DART 5.1.2 QUIET)
+find_package(DART 6.0.1 QUIET)
 if (DART_FOUND)
   message (STATUS "Looking for DART - found")
   set (HAVE_DART TRUE)

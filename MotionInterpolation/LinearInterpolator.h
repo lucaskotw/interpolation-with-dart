@@ -4,11 +4,11 @@
  * Keyframe selection: uniformly pick
  * Based on a list of LinearPathSegment
  */
-#ifndef _MOTIONINTERPOLATION_LINEARINTERPOLATOR_H
-#define _MOTIONINTERPOLATION_LINEARINTERPOLATOR_H
+#ifndef MOTIONINTERPOLATION_LINEARINTERPOLATOR_H
+#define MOTIONINTERPOLATION_LINEARINTERPOLATOR_H
 
 #include "AmcParser.h"
-#include <dart/dart.h>
+#include <dart/dart.hpp>
 
 
 

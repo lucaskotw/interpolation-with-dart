@@ -3,18 +3,21 @@
  * Steps
  * 1) fix writing the skeleton kinematic data
  */
-#include "dart/dart.h"
+#include <dart/dart.hpp>
 #include "MyWindow.h"
 #include <iostream>
 #include <cmath> // for atan2
 #include "AsfParser.h"
+
+//#include <GL/glut.h>
 //#include "AmcMotion.h"
 #include "LinearInterpolator.h"
 
-using namespace dart::dynamics;
-using namespace dart::simulation;
+using namespace dart;
+using namespace dynamics;
+using namespace simulation;
 
-
+/*
 SkeletonPtr createFloor()
 {
   SkeletonPtr floor = Skeleton::create("floor");
@@ -26,8 +29,9 @@ SkeletonPtr createFloor()
   // Give the body a shape
   double floor_width = 5.0;
   double floor_height = 0.01;
-  std::shared_ptr<BoxShape> box(
-        new BoxShape(Eigen::Vector3d(floor_width, floor_width, floor_height)));
+  dart::dynamics::ShapePtr floor_shape;
+  floor_shape.reset(new BoxShape(Eigen::Vector3d(floor_width, floor_width, floor_height)));
+  //dart::dynamics::ShapeNode* sn = body
   box->setColor(dart::Color::Black());
 
   body->addVisualizationShape(box);
@@ -83,7 +87,7 @@ SkeletonPtr createPillar()
   return pillar;
 
 }
-
+*/
 
 int main(int argc, char ** argv)
 {
@@ -95,14 +99,18 @@ int main(int argc, char ** argv)
 
   WorldPtr world(new World);
 
-  SkeletonPtr floor = createFloor();
-  //SkeletonPtr pillar = createPillar();
   world->addSkeleton(robot);
-  //world->addSkeleton(floor);
-  //world->addSkeleton(pillar);
+  // make sure the world is not intefered with gravity
+  Eigen::Vector3d zero_g = Eigen::Vector3d::Zero();
+  world->setGravity(zero_g);
+
 
   // Display the result
-  MyWindow window(world);
+
+  //MyWindow window(world);
+  MyWindow window;
+  window.setWorld(world);
+  window.setSkel(robot);
   window.loadAndInterpolateMotionData(argv[2], asf_data);
 
   std::cout << "asf dofs" << std::endl;

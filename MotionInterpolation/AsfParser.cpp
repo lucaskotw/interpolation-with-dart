@@ -418,7 +418,6 @@ BodyNodePtr createRoot(
   // define the unit conversion
   double unit = (1.0/0.45)*2.54/100.0; // scale to inches to meter
 
-  BodyNodePtr bn;
 
   FreeJoint::Properties j_prop;
   j_prop.mName = "root_joint";
@@ -426,16 +425,25 @@ BodyNodePtr createRoot(
   b_prop.mName = "root";
   parent = nullptr;
 
-  bn = skel->createJointAndBodyNodePair<FreeJoint>(
-    parent, j_prop, b_prop).second;
+  // create joint and body node pair
+  dart::dynamics::BodyNode* bn = nullptr;
 
-  // make joint shape
+  auto pair = skel->createJointAndBodyNodePair<FreeJoint>(
+    parent, j_prop, b_prop);
+
+  bn = pair.second;
+  assert(bn != nullptr);
+
+
+  // create joint shape node
   const double& j_R = joint_radius;
-  std::shared_ptr<EllipsoidShape> j_shape(
-      new EllipsoidShape(sqrt(2)*Eigen::Vector3d(j_R, j_R, j_R)));
-  j_shape->setColor(dart::Color::Blue());
-  bn->addVisualizationShape(j_shape);
-
+  dart::dynamics::ShapePtr j_shape;
+  j_shape.reset(new EllipsoidShape(sqrt(2)*Eigen::Vector3d(j_R, j_R, j_R)));
+  dart::dynamics::ShapeNode* sn = bn->createShapeNodeWith<
+    dart::dynamics::VisualAspect,
+    dart::dynamics::CollisionAspect,
+    dart::dynamics::DynamicsAspect>(j_shape, "root_shape");
+  sn->getVisualAspect()->setColor(dart::Color::Blue());
 
   return bn; 
 }
@@ -452,58 +460,63 @@ BodyNodePtr createSegment(
 
   BodyNodePtr bn;
 
-
+  // create joint properties pointer
   BallJoint::Properties j_prop;
   j_prop.mName = bone->name + "_joint";
   j_prop.mT_ParentBodyToJoint.translation() = bone->length * unit * bone->direction;
+
+
   BodyNode::Properties b_prop;
   b_prop.mName = bone->name;
   // body node and joint should be parent and child relationship
   // e.g., lhipjoint_joint is the joint driven lfemur
-  bn = skel->createChildJointAndBodyNodePair<BallJoint>(
+  bn = skel->createJointAndBodyNodePair<BallJoint>(
     parent, j_prop, b_prop).second;
 
-  // make child joint shape
+
+
+/*
+  // make parent joint shape
   const double& j_R = joint_radius;
   std::shared_ptr<EllipsoidShape> j_shape(
       new EllipsoidShape(sqrt(2)*Eigen::Vector3d(j_R, j_R, j_R)));
-  j_shape->setColor(dart::Color::Red());
+  dart::dynamic::shapeNode* node = bn->createShapeNodeWith<
+      dart::dynamics::VisualAspect,
+      dart::dynamics
+  dart::dynamics::ShapeNode* sn = bn->createShapeNodeWith<
+    dart::dynamics::VisualAspect,
+    dart::dynamics::CollisionAspect,
+    dart::dynamics::DynamicsAspect>(j_shape, "root_shape");
+  sn->getVisualAspect()->setColor(dart::Color::Blue());
+
+
   bn->addVisualizationShape(j_shape);
 
-  // make lhipjoint body shape
+  j_shape->getVisualAspect()->setColor(dart::Color::Red());
+*/
+
   // Create a CylinderShape to be used for both visualization and
   // collision checking
-  std::shared_ptr<CylinderShape> b_shape(
-      new CylinderShape(j_R, bone->length * unit));
-  b_shape->setColor(dart::Color::Black());
+  dart::dynamics::Joint*    joint  = bn->getParentJoint();
+  Eigen::Isometry3d         tf     = joint->getTransformFromParentBodyNode();
 
-  Joint* p_j = bn->getParentJoint();
-  Eigen::Isometry3d tf = p_j->getTransformFromParentBodyNode();
+  // Determine the local transform of the shape
   Eigen::Isometry3d localTransform = Eigen::Isometry3d::Identity();
-
-  // TODO: This could be substitute by computeRotation in DART 6.0
-  Eigen::Matrix3d rot_m;
-  Eigen::Vector3d axis0 = tf.translation().normalized();
-  Eigen::Vector3d axis1 = axis0.cross(Eigen::Vector3d::UnitX());
-  axis1.normalize();
-  Eigen::Vector3d axis2 = axis0.cross(axis1).normalized();
-  int index = 2; // start from z
-  rot_m.col(index)       = axis0;
-  rot_m.col(++index % 3) = axis1;
-  rot_m.col(++index % 3) = axis2;
-  localTransform.linear() = rot_m;
-
-
+  localTransform.linear() = dart::math::computeRotation(tf.translation(),
+                              dart::math::AxisType::AXIS_Z);
   localTransform.translation() = 0.5 * tf.translation();
-  b_shape->setLocalTransform(localTransform);
-  // Add it as a visualization and collision shape
-  bn->getParentBodyNode()->addVisualizationShape(b_shape);
 
-  std::cout << "joint body node pair" << std::endl;
-  std::cout << 
+  const double& b_R = joint_radius;
+  dart::dynamics::ShapePtr b_shape;
+  b_shape.reset(new CylinderShape(b_R, bone->length * unit));
+  dart::dynamics::ShapeNode* sn = parent->createShapeNodeWith<
+    dart::dynamics::VisualAspect,
+    dart::dynamics::CollisionAspect,
+    dart::dynamics::DynamicsAspect>(b_shape, bn->getName()+"_shape");
 
 
-
+  sn->setRelativeTransform(localTransform);
+  sn->getVisualAspect()->setColor(dart::Color::Black());
 
   return bn; 
 }
@@ -556,6 +569,7 @@ bool ASFData::generateSkeletonHierarchy(dart::dynamics::SkeletonPtr skel)
 
   // adjust the segment reference (relate to its parent joint) based on axis
   // data
+  /*
   JointPtr currentJointPtr;
   JointPtr parentJointPtr;
   BodyNodePtr currentBodyNodePtr;
@@ -578,6 +592,7 @@ bool ASFData::generateSkeletonHierarchy(dart::dynamics::SkeletonPtr skel)
       parentJointPtr->setPositions(rotationReference);
     }
   }
+  */
 
 
   std::cout << "finish generating structure" << std::endl;
@@ -615,6 +630,17 @@ bool ASFData::readSkeleton(char * fileName, dart::dynamics::SkeletonPtr skel)
 
   // generate the whole skeleton with hierarchy structure
   generateSkeletonHierarchy(skel);
+
+
+  // dump lfemur bodynode and its parent reference
+  std::cout << "lfemur before motion's relative transform" << std::endl;
+  std::cout << skel->getBodyNode("lfemur")->getRelativeTransform().linear() << std::endl;
+
+  std::cout << "lfemur joint positions" << std::endl;
+  std::cout << skel->getJoint("lfemur_joint")->getPositions() << std::endl;
+
+  std::cout << "lfemur # body node size = "
+            << skel->getBodyNode("lfemur")->getNumChildBodyNodes() << std::endl;
 
 
   return true;
