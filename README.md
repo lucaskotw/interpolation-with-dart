@@ -1,7 +1,8 @@
 # ASF/AMC Parser for DART
 
 This is a project for testing the ASF/AMC parser with motion interpolation using
-DART (Dynamic Animation and Robotics Toolkit).
+DART (Dynamic Animation and Robotics Toolkit). The goal is to demonstrate how to
+use the ASF/AMC parser.
 
 ## Environment
 
@@ -12,6 +13,15 @@ DART (Dynamic Animation and Robotics Toolkit).
 
 1. [CMU Graphics Lab Motion Capture Database](http://mocap.cs.cmu.edu/)
 2. [USC CSCI5250 Computer Animation and Simulation](http://run.usc.edu/cs520-s15/assign2/)
+
+
+## How to build and execute
+
+1. In the root directory, `mkdir build`.
+2. `cd build`
+3. `cmake ..`
+4. `make MotionInterpolation`
+5. `bin/MotionInterpolation \[path to asf data\] \[path to amc data]
 
 ## Interpolation Method
 
@@ -31,8 +41,12 @@ Linear Interpolation Method with Euler Angle.
 
 ## Question
 
-1. How to define the namespaces?
+1. How to set the namespaces?
+  - file such as the VskParser.h is in the name space 
+2. Is there any other suggestion or work to do if there's a change to merge into
+   DART project? 
 
 ## TODO
 
-- Including Macro of the ASF file, such as scaling.
+- Including Macro parser for the ASF file, such as scaling, axis order, and
+  degree unit, etc.
