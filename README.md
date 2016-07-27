@@ -21,7 +21,7 @@ use the ASF/AMC parser.
 2. `cd build`
 3. `cmake ..`
 4. `make MotionInterpolation`
-5. `bin/MotionInterpolation \[path to asf data\] \[path to amc data]
+5. `bin/MotionInterpolation \[path to asf data\] \[path to amc data\]`
 
 ## Interpolation Method
 
