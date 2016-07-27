@@ -1,12 +1,13 @@
 # ASF/AMC Parser for DART
 
 This is a project for testing the ASF/AMC parser with motion interpolation using
-DART (Dynamic Animation and Robotics Toolkit). The goal is to demonstrate how to
+[DART (Dynamic Animation and Robotics Toolkit)](http://dartsim.github.io). The goal is to demonstrate how to
 use the ASF/AMC parser.
 
 ## Format Discription
 
-
+ASF file is for skeleton building.
+AMC file is for motion data which could be implemented on the built skeleton.
 
 ## Environment
 
@@ -66,12 +67,12 @@ Configuration of the skeleton will reset by the following processes.
   - file such as the VskParser.h is in the name space `dart::utils` and code
     like follows
 
-    dart {
-        util {
+        dart {
+            util {
         
-        code block
+                code block
+            }
         }
-    }
 
 2. Is there any other suggestion or work to do if there's a chance to merge into
    the major DART project? 
