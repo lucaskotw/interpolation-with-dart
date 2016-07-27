@@ -6,16 +6,17 @@ use the ASF/AMC parser.
 
 ## Environment
 
-- dart: v6.0
-- OS  : Ubuntu 14.04 vivid
+- DART         : v6.0
+- OS           : Ubuntu 14.04 vivid
+- Cmake Version: 2.8
 
 ## Data
 
 1. [CMU Graphics Lab Motion Capture Database](http://mocap.cs.cmu.edu/)
-2. [USC CSCI5250 Computer Animation and Simulation](http://run.usc.edu/cs520-s15/assign2/)
+2. [USC CSCI5250 Computer Animation and Simulation Assignment 2](http://run.usc.edu/cs520-s15/assign2/)
 
 
-## How to build and execute
+## How to Build and Execute
 
 1. In the root directory, `mkdir build`.
 2. `cd build`
@@ -23,7 +24,7 @@ use the ASF/AMC parser.
 4. `make MotionInterpolation`
 5. `bin/MotionInterpolation \[path to asf data\] \[path to amc data\]`
 
-## Interpolation Method
+## The Interpolation Method
 
 Linear Interpolation Method with Euler Angle.
 
@@ -39,14 +40,15 @@ Linear Interpolation Method with Euler Angle.
 - Main.cpp: The main function. 
 
 
-## Question
+## Questions
 
 1. How to set the namespaces?
-  - file such as the VskParser.h is in the name space 
-2. Is there any other suggestion or work to do if there's a change to merge into
-   DART project? 
+  - file such as the VskParser.h is in the name space `dart::utils` and code
+    like follows
+2. Is there any other suggestion or work to do if there's a chance to merge into
+   the major DART project? 
 
-## TODO
+## TODOs
 
 - Including Macro parser for the ASF file, such as scaling, axis order, and
   degree unit, etc.
