@@ -4,6 +4,10 @@ This is a project for testing the ASF/AMC parser with motion interpolation using
 DART (Dynamic Animation and Robotics Toolkit). The goal is to demonstrate how to
 use the ASF/AMC parser.
 
+## Format Discription
+
+
+
 ## Environment
 
 - DART         : v6.0
@@ -18,7 +22,7 @@ use the ASF/AMC parser.
 ### ASF/AMC pairing
 
 - `02.asf` with `02_02.amc`
-- `13.asf` with `13_17.amc` and
+- `13.asf` with `13_17.amc` and `13_18.amc`
 
 ## How to Build and Execute
 
@@ -26,7 +30,7 @@ use the ASF/AMC parser.
 2. `cd build`
 3. `cmake ..`
 4. `make MotionInterpolation`
-5. `bin/MotionInterpolation \[path to asf data\] \[path to amc data\]`
+5. `bin/MotionInterpolation (path to asf data) (path to amc data)`
 
 ## The Interpolation Method
 
@@ -46,12 +50,22 @@ Linear Interpolation Method with Euler Angle.
 
 ## The Concept of Skeleton Building and Motion Processing
 
+### Skeleton Building
+The method I use is `createJointAndBodyNodePair`.
+
+The following figure explain the idea.
+
+### Motion Processing
+
+Configuration of the skeleton will reset by the following processes.
+
 
 ## Questions
 
 1. How to set the namespaces?
   - file such as the VskParser.h is in the name space `dart::utils` and code
     like follows
+
     dart {
         util {
         
