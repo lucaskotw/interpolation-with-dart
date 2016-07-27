@@ -82,3 +82,4 @@ Configuration of the skeleton will reset by the following processes.
 - Including macro parser for the *ASF* file, such as *scaling*, *axis order*,
   and *degree unit*, etc.
 - Verifying some degree in *AMC* file over 360 deg
+- Including limit parser for each segment

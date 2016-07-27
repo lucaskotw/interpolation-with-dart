@@ -15,24 +15,20 @@ int MyWindow::loadAndInterpolateMotionData(char* motionFileName,
                                            ASFData * asfData)
 {
 
-  std::cout << "start interpolation process" << std::endl;
   // load corresponding ASF data
   mAsfData = new ASFData();
   *mAsfData = *asfData;
 
-  std::cout << "start interpolation process" << std::endl;
   // test motion data
   mInputMotion = new AMCData(asfData);
   mInputMotion->readAMCFile(motionFileName);
 
-  std::cout << "end loading amc data" << std::endl;
 
   // test lienar interpolation
   mOutputMotion = new AMCData(asfData);
   LinearInterpolator* interpolator = new LinearInterpolator();
   interpolator->linearInterpolation(mInputMotion, mOutputMotion, 12);
 
-  std::cout << "end interpolation process" << std::endl;
 
   return 0;
 

@@ -8,10 +8,8 @@ AMCData::AMCData(ASFData * asfData)
   // Set Corresponding ASF Data
   mAsfData = new ASFData();
 
-  std::cout << "create new ASF data pointer" << std::endl;
   *mAsfData = *asfData;
 
-  std::cout << "end recording ASF data" << std::endl;
   // record the nonzero dofs segment name
   std::vector<std::string> asfSegmentNames(0);
   mSegmentNames.resize(0);
@@ -36,7 +34,6 @@ AMCData::AMCData(ASFData * asfData)
     }
   }
 
-  std::cout << "end loading segment names" << std::endl;
 
   // set up dofs of the motion sample
   mNumDofs = 0;
@@ -60,7 +57,6 @@ AMCData::AMCData(ASFData * asfData)
 
   }
 
-  std::cout << "end loading segment dofs" << std::endl;
 
   mNumFrames = 0;
   mFramesConfig.resize(0);

@@ -12,20 +12,16 @@ void LinearInterpolator::linearInterpolation(AMCData * inputMotion,
                                              int windowSize)
 {
 
-  std::cout << "start interpolation process" << std::endl;
-  std::cout << "input motion size = " << inputMotion->getNumFrames() << std::endl;
   // Planarize the Motion state to a vector
   int numSegments = inputMotion->getSegmentNames().size();
   int numDofs = inputMotion->getNumDofs();
 
-  std::cout << "input motion #dofs = " << numDofs << std::endl;
   Eigen::VectorXd start;
   Eigen::VectorXd end;
   inputMotion->getFrameConfig(0, &start);          // set the first frame as
                                                    // start
   inputMotion->getFrameConfig(windowSize-1, &end); // set the space th frame as
                                                    // end
-  std::cout << start << std::endl;
   // interpolate desired frames into the output motion list
   Eigen::VectorXd middle(numDofs);
   double weight;
@@ -44,6 +40,7 @@ void LinearInterpolator::linearInterpolation(AMCData * inputMotion,
     {
       std::cout << "fail adding frame" << std::endl;
     }
+
     // add middle frame
     for (std::size_t i=0; i<space; ++i)
     {

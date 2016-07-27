@@ -171,7 +171,6 @@ bool ASFData::setRoot()
     std::istringstream stream(line);
     stream >> token;
 
-    std::cout << token << std::endl;
     if (token == ":bonedata")
       break;
 
@@ -202,14 +201,12 @@ bool ASFData::setRoot()
 
   }
 
-  std::cout << "finish setting root" << std::endl;
   return true;
 }
 
 
 bool ASFData::setBones()
 {
-  std::cout << "current mBones size = " << mBones.size();
   std::string line, token, dof_val;
   bool is_seg_begin = false;
   Bone newBone;
@@ -233,7 +230,6 @@ bool ASFData::setBones()
 
     if (token == ":hierarchy")
     {
-      std::cout << "end of bone data" << std::endl;
       break;
     } 
     // read begin -> start new segment
@@ -261,7 +257,6 @@ bool ASFData::setBones()
       {
 
 
-        std::cout << "segment ended" << std::endl;
         is_seg_begin = false;
         // push the new bone to bone list
         mBones.push_back(newBone);
@@ -391,19 +386,6 @@ bool ASFData::setBones()
 
   } // end of reading bone data
 
-  std::cout << "finish reading Bones" << std::endl;
-  std::cout << "Bones" << std::endl;
-  for (std::vector<Bone>::iterator it=mBones.begin(); it!=mBones.end(); ++it)
-  {
-    std::cout << "id = " << std::to_string((*it).id)
-              << ", name = " << (*it).name
-              << ", dof_flag = " << (*it).dof_flag
-              << ", length = " << (*it).length;
-    std::cout << ", axes = " << (*it).axes;
-    std::cout << ", direction = " << (*it).direction;
-
-    std::cout << std::endl;
-  }
   return true;
 
 }
@@ -630,17 +612,6 @@ bool ASFData::readSkeleton(char * fileName, dart::dynamics::SkeletonPtr skel)
 
   // generate the whole skeleton with hierarchy structure
   generateSkeletonHierarchy(skel);
-
-
-  // dump lfemur bodynode and its parent reference
-  std::cout << "lfemur before motion's relative transform" << std::endl;
-  std::cout << skel->getBodyNode("lfemur")->getRelativeTransform().linear() << std::endl;
-
-  std::cout << "lfemur joint positions" << std::endl;
-  std::cout << skel->getJoint("lfemur_joint")->getPositions() << std::endl;
-
-  std::cout << "lfemur # body node size = "
-            << skel->getBodyNode("lfemur")->getNumChildBodyNodes() << std::endl;
 
 
   return true;
