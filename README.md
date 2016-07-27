@@ -15,6 +15,10 @@ use the ASF/AMC parser.
 1. [CMU Graphics Lab Motion Capture Database](http://mocap.cs.cmu.edu/)
 2. [USC CSCI5250 Computer Animation and Simulation Assignment 2](http://run.usc.edu/cs520-s15/assign2/)
 
+### ASF/AMC pairing
+
+- `02.asf` with `02_02.amc`
+- `13.asf` with `13_17.amc` and
 
 ## How to Build and Execute
 
@@ -31,13 +35,16 @@ Linear Interpolation Method with Euler Angle.
 
 ## Function of Each File
 
-- AsfParser.h/.cpp: Implement **ASFData** objects to contain data in ASF files.
-- AmcParser.h/.cpp: Implement **AMCData** objects to contain data in AMC files,
+- `AsfParser.h/.cpp`: Implement **ASFData** objects to contain data in ASF files.
+- `AmcParser.h/.cpp`: Implement **AMCData** objects to contain data in AMC files,
                     associated with a corresponding ASF data.
-- LinearInterpolator.h/.cpp: Implement **LinearInterpolatior** object to 
+- `LinearInterpolator.h/.cpp`: Implement **LinearInterpolatior** object to 
                              interpolate motion with Euler angle metric.
-- MyWindow.h/.cpp: Display the parsed result. Run the interpolation process.
-- Main.cpp: The main function. 
+- `MyWindow.h/.cpp`: Display the parsed result. Run the interpolation process.
+- `Main.cpp`: The main function.
+
+
+## The Concept of Skeleton Building and Motion Processing
 
 
 ## Questions
@@ -45,10 +52,18 @@ Linear Interpolation Method with Euler Angle.
 1. How to set the namespaces?
   - file such as the VskParser.h is in the name space `dart::utils` and code
     like follows
+    dart {
+        util {
+        
+        code block
+        }
+    }
+
 2. Is there any other suggestion or work to do if there's a chance to merge into
    the major DART project? 
 
 ## TODOs
 
-- Including Macro parser for the ASF file, such as scaling, axis order, and
-  degree unit, etc.
+- Including macro parser for the *ASF* file, such as *scaling*, *axis order*,
+  and *degree unit*, etc.
+- Verifying some degree in *AMC* file over 360 deg
