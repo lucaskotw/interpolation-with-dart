@@ -82,6 +82,9 @@ Configuration of the skeleton will reset by the following processes.
 2. Is there any other suggestion or work to do if there's a chance to merge into
    the major DART project? 
 
+3. Developing Questions: Would you use std::cout to indicate which functions is
+   executing now? Or you just use gdb to develop and debug?
+
 ## TODOs
 
 - Including macro parser for the *ASF* file, such as *scaling*, *axis order*,
