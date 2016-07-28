@@ -17,13 +17,18 @@ AMC file is for motion data which could be implemented on the built skeleton.
 
 ## Data
 
-1. [CMU Graphics Lab Motion Capture Database](http://mocap.cs.cmu.edu/)
-2. [USC CSCI5250 Computer Animation and Simulation Assignment 2](http://run.usc.edu/cs520-s15/assign2/)
+[CMU Graphics Lab Motion Capture Database](http://mocap.cs.cmu.edu/)
 
 ### ASF/AMC pairing
 
-- `02.asf` with `02_02.amc`
-- `13.asf` with `13_17.amc` and `13_18.amc`
+| ASF     | AMCs                 | Motion Discription |
+|---------|----------------------|--------------------|
+| 02.asf  | 02_02.amc            | walk               |
+| 07.asf  | 07_05.amc            | walk               |
+| 09.asf  | 09_06.amc            | run                |
+| 13.asf  | 13_17.amc, 13_18.amc | boxing             |
+| 131.asf | 131_04.amc           | dance              |
+| 135.asf | 135_06.amc           | martial arts       |
 
 ## How to Build and Execute
 
